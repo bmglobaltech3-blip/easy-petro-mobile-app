@@ -1,9 +1,8 @@
 <?$mainclass->headercontent();
-if(!function_exists('ep_render_alert_html')){
-	function ep_render_alert_html($html){
+if(!function_exists('ep_sanitize_markup')){
+	function ep_sanitize_markup($html, $allowedTags){
 		$html = str_ireplace(array('<br />', '<br/>', '<br>'), '<br>', $html);
-		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small>');
-		$allowedTags = array('a','br','strong','b','em','i','ul','ol','li','p','small');
+		$html = strip_tags($html, '<'.implode('><', $allowedTags).'>');
 		$html = preg_replace_callback('/<(\/?)([a-z0-9]+)([^>]*)>/i', function($matches) use ($allowedTags){
 			$tag = strtolower($matches[2]);
 			if(!in_array($tag, $allowedTags, true))return '';
@@ -11,39 +10,30 @@ if(!function_exists('ep_render_alert_html')){
 			if($tag === 'br')return '<br>';
 			if($tag === 'a'){
 				$href = '#';
+				$isExternal = false;
 				if(preg_match('/href=(["\']?)([^"\'>\s]+)\\1/i', $matches[3], $hrefMatches)){
 					$candidateHref = $hrefMatches[2];
-					if(preg_match('/^(https?:|mailto:|#)/i', $candidateHref) || preg_match('/^\\/(?!\\/)/', $candidateHref))$href = $candidateHref;
+					if(preg_match('/^(https?:|mailto:)/i', $candidateHref)){
+						$href = $candidateHref;
+						$isExternal = true;
+					}elseif(preg_match('/^#/', $candidateHref) || preg_match('/^\\/(?!\\/)/', $candidateHref))$href = $candidateHref;
 				}
-				return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
+				return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'"'.($isExternal ? ' target="_blank" rel="noopener noreferrer"' : '').'>';
 			}
 			return '<'.$tag.'>';
 		}, $html);
 		return $html;
 	}
 }
+if(!function_exists('ep_render_alert_html')){
+	function ep_render_alert_html($html){
+		return ep_sanitize_markup($html, array('a','br','strong','b','em','i','ul','ol','li','p','small'));
+	}
+}
 if(!function_exists('ep_render_log_html')){
 	function ep_render_log_html($html){
 		$html = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $html);
-		$html = str_ireplace(array('<br />', '<br/>'), '<br>', $html);
-		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small><pre><code><table><thead><tbody><tr><td><th><div>');
-		$allowedTags = array('a','br','strong','b','em','i','ul','ol','li','p','small','pre','code','table','thead','tbody','tr','td','th','div');
-		$html = preg_replace_callback('/<(\/?)([a-z0-9]+)([^>]*)>/i', function($matches) use ($allowedTags){
-			$tag = strtolower($matches[2]);
-			if(!in_array($tag, $allowedTags, true))return '';
-			if($matches[1] === '/')return $tag === 'br' ? '' : '</'.$tag.'>';
-			if($tag === 'br')return '<br>';
-			if($tag === 'a'){
-				$href = '#';
-				if(preg_match('/href=(["\']?)([^"\'>\s]+)\\1/i', $matches[3], $hrefMatches)){
-					$candidateHref = $hrefMatches[2];
-					if(preg_match('/^(https?:|mailto:|#)/i', $candidateHref) || preg_match('/^\\/(?!\\/)/', $candidateHref))$href = $candidateHref;
-				}
-				return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
-			}
-			return '<'.$tag.'>';
-		}, $html);
-		return $html;
+		return ep_sanitize_markup($html, array('a','br','strong','b','em','i','ul','ol','li','p','small','pre','code','table','thead','tbody','tr','td','th','div'));
 	}
 }
 $requestedLocationId = !empty($_GET['location']) ? $_GET['location'] : (!empty($_POST['location']) ? $_POST['location'] : '');
@@ -62,7 +52,7 @@ if(!empty($QRY)){
 		$LESSFUEL = isset($FUELLESS[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLESS[$ROWS->locationid][$ROWS->tankid] : 0;
 		$OVERFUEL = isset($FUELOVER[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELOVER[$ROWS->locationid][$ROWS->tankid] : 0;
 		$LOWFUEL = isset($FUELLOW[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLOW[$ROWS->locationid][$ROWS->tankid] : 0;
-		$ullageTarget = 90;
+		$ullageTarget = isset($FUELULLAGE[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELULLAGE[$ROWS->locationid][$ROWS->tankid] : 90;
 		$capacityTarget = $capacity ? ($capacity * $ullageTarget / 100) : 0;
 		$percent = $capacity ? round(($ROWS->gallons * 100) / $capacity, 2) : 0;
 		$actualUllage = $capacityTarget ? round($capacityTarget - $ROWS->gallons, 2) : 0;

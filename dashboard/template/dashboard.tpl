@@ -11,11 +11,15 @@ if(!function_exists('ep_render_alert_html')){
 			if($tag === 'br')return '<br>';
 			if($tag === 'a'){
 				$href = '#';
+				$isExternal = false;
 				if(preg_match('/href=(["\']?)([^"\'>\s]+)\\1/i', $matches[3], $hrefMatches)){
 					$candidateHref = $hrefMatches[2];
-					if(preg_match('/^(https?:|mailto:|#)/i', $candidateHref) || preg_match('/^\\/(?!\\/)/', $candidateHref))$href = $candidateHref;
+					if(preg_match('/^(https?:|mailto:)/i', $candidateHref)){
+						$href = $candidateHref;
+						$isExternal = true;
+					}elseif(preg_match('/^#/', $candidateHref) || preg_match('/^\\/(?!\\/)/', $candidateHref))$href = $candidateHref;
 				}
-				return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
+				return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'"'.($isExternal ? ' target="_blank" rel="noopener noreferrer"' : '').'>';
 			}
 			return '<'.$tag.'>';
 		}, $html);
@@ -73,9 +77,9 @@ foreach($LOCATIONQRY as $LOCATION){
 		elseif($LESSFUEL && $gallons < $LESSFUEL)$stateClass = 'is-less';
 		elseif($OVERFUEL && $gallons > $OVERFUEL)$stateClass = 'is-over';
 		$waterStateClass = 'is-normal';
-		if($LOWWATER && (float)$water < $LOWWATER)$waterStateClass = 'is-low';
-		elseif($LESSWATER && (float)$water < $LESSWATER)$waterStateClass = 'is-less';
-		elseif($OVERWATER && (float)$water > $OVERWATER)$waterStateClass = 'is-over';
+		if($OVERWATER && (float)$water >= $OVERWATER)$waterStateClass = 'is-low';
+		elseif($LESSWATER && (float)$water >= $LESSWATER)$waterStateClass = 'is-less';
+		elseif($LOWWATER && (float)$water >= $LOWWATER)$waterStateClass = 'is-over';
 		$stateWeight = ['is-normal'=>0,'is-over'=>1,'is-less'=>2,'is-low'=>3];
 		if($stateWeight[$waterStateClass] > $stateWeight[$stateClass])$stateClass = $waterStateClass;
 
