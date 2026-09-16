@@ -13,7 +13,8 @@ if(!empty($QRY)){
 		$LESSFUEL = isset($FUELLESS[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLESS[$ROWS->locationid][$ROWS->tankid] : 0;
 		$OVERFUEL = isset($FUELOVER[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELOVER[$ROWS->locationid][$ROWS->tankid] : 0;
 		$LOWFUEL = isset($FUELLOW[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLOW[$ROWS->locationid][$ROWS->tankid] : 0;
-		$capacityTarget = $capacity ? ($capacity * 90 / 100) : 0;
+		$ullageTarget = isset($FUELULLAGE[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELULLAGE[$ROWS->locationid][$ROWS->tankid] : 90;
+		$capacityTarget = $capacity ? ($capacity * $ullageTarget / 100) : 0;
 		$percent = $capacity ? round(($ROWS->gallons * 100) / $capacity, 2) : 0;
 		$actualUllage = $capacityTarget ? round($capacityTarget - $ROWS->gallons, 2) : 0;
 		$stateClass = 'is-normal';
@@ -27,6 +28,7 @@ if(!empty($QRY)){
 			'product' => $ROWS->product,
 			'gallons' => $ROWS->gallons,
 			'ullage' => $ROWS->ullage,
+			'ullage_target' => $ullageTarget,
 			'actual_ullage' => $actualUllage,
 			'water' => $ROWS->water,
 			'inches' => $ROWS->inches,
@@ -150,7 +152,7 @@ if(!empty($QRY)){
 				<div class="ep-grid">
 					<div><label>Gallons</label><b><?=number_format($tank['gallons'], 2);?></b></div>
 					<div><label>Live Ullage</label><b><?=htmlspecialchars($tank['ullage']);?></b></div>
-					<div><label>90% Ullage</label><b><?=number_format($tank['actual_ullage'], 2);?></b></div>
+					<div><label><?=number_format($tank['ullage_target'], 0);?>% Ullage</label><b><?=number_format($tank['actual_ullage'], 2);?></b></div>
 					<div><label>Water</label><b><?=htmlspecialchars($tank['water']);?></b></div>
 					<div><label>Inches</label><b><?=htmlspecialchars($tank['inches']);?></b></div>
 					<div><label>Deg F</label><b><?=htmlspecialchars($tank['deg']);?></b></div>

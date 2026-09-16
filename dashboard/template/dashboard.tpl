@@ -27,7 +27,8 @@ foreach($LOCATIONQRY as $LOCATION){
 		$recorded = $vxpld[7];
 		$color = !empty($FUELCOLOR[$locationId][$tankid]) ? $FUELCOLOR[$locationId][$tankid] : '#079447';
 		$capacity = !empty($FUELCAPACITY[$locationId][$tankid]) ? (float)$FUELCAPACITY[$locationId][$tankid] : 0;
-		$capacityTarget = $capacity ? ($capacity * 90 / 100) : 0;
+		$ullageTarget = isset($FUELULLAGE[$locationId][$tankid]) ? (float)$FUELULLAGE[$locationId][$tankid] : 90;
+		$capacityTarget = $capacity ? ($capacity * $ullageTarget / 100) : 0;
 		$actualUllage = $capacityTarget ? round($capacityTarget - $gallons) : 0;
 		$percent = $capacity ? round(($gallons * 100) / $capacity, 2) : 0;
 		$LOWFUEL = isset($FUELLOW[$locationId][$tankid]) ? (float)$FUELLOW[$locationId][$tankid] : 0;
@@ -52,6 +53,7 @@ foreach($LOCATIONQRY as $LOCATION){
 			'product' => $product,
 			'gallons' => $gallons,
 			'ullage_live' => $ullageLive,
+			'ullage_target' => $ullageTarget,
 			'actual_ullage' => $actualUllage,
 			'water' => $water,
 			'inches' => $inches,
@@ -222,11 +224,11 @@ foreach($LOCATIONQRY as $LOCATION){
 							<div class="ep-progress"><span style="width:<?=min(100, max(0, $tank['percent']));?>%;background:<?=$tank['color'];?>"></span></div>
 							<div class="ep-stats">
 								<div class="ep-stat"><label>Gallons</label><b><?=number_format($tank['gallons'], 2);?></b></div>
-								<div class="ep-stat"><label>90% Ullage</label><b><?=number_format($tank['actual_ullage'], 2);?></b></div>
+								<div class="ep-stat"><label><?=number_format($tank['ullage_target'], 0);?>% Ullage</label><b><?=number_format($tank['actual_ullage'], 2);?></b></div>
 								<div class="ep-stat"><label>Water</label><b><?=htmlspecialchars($tank['water']);?></b></div>
 								<div class="ep-stat"><label>Inches</label><b><?=htmlspecialchars($tank['inches']);?></b></div>
 								<div class="ep-stat"><label>Deg F</label><b><?=htmlspecialchars($tank['deg']);?></b></div>
-								<div class="ep-stat"><label>Status</label><b><?=str_replace('is-','',ucfirst($tank['state_class']));?></b></div>
+								<div class="ep-stat"><label>Status</label><b><?=ucfirst(str_replace('is-','',$tank['state_class']));?></b></div>
 							</div>
 						</div>
 						<?}?>
