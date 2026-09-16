@@ -238,7 +238,7 @@
   <header>
     <div class="topbar">
       <div class="brand">
-        <div class="logo" aria-label="Easy Petro logo">
+        <div class="logo" role="img" aria-label="Easy Petro logo">
           <svg viewBox="0 0 40 40" fill="none">
             <path d="M20 5l7 4-7 4-7-4 7-4Z" fill="#29A64A"/>
             <path d="M11 11l7 4-7 4-7-4 7-4Z" fill="#37A8D9"/>
@@ -751,9 +751,56 @@
     return value.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
   }
 
+  function createNode(tag, options = {}){
+    const node = document.createElement(tag);
+    if (options.className) node.className = options.className;
+    if (options.text !== undefined) node.textContent = options.text;
+    if (options.type) node.type = options.type;
+    return node;
+  }
+
+  function appendStatCard(parent, label, value){
+    const stat = createNode('div', { className: 'stat' });
+    stat.append(
+      createNode('div', { className: 'stat-label', text: label }),
+      createNode('div', { className: 'stat-value', text: value })
+    );
+    parent.appendChild(stat);
+  }
+
+  function appendReportRow(parent, name, middleValue, endValue, isHead, dotClassName){
+    const row = createNode('div', { className: 'v3-row' + (isHead ? ' v3-head' : '') });
+    const nameCell = createNode('span', { className: isHead ? '' : 'v3-name', text: name });
+    if (dotClassName) {
+      const dot = createNode('i', { className: 'v3-dot ' + dotClassName });
+      nameCell.prepend(dot);
+    }
+    row.append(
+      nameCell,
+      createNode('span', { className: isHead ? '' : 'v3-num', text: middleValue }),
+      createNode('span', { className: isHead ? '' : 'v3-money', text: endValue })
+    );
+    parent.appendChild(row);
+  }
+
+  function renderReportHeader(container, title, subtitle){
+    const header = createNode('div', { className: 'v3-group-title' });
+    header.append(
+      createNode('b', { text: title }),
+      createNode('span', { text: subtitle })
+    );
+    container.appendChild(header);
+  }
+
   function populateSelectors(){
     document.querySelectorAll('.location-select').forEach(select => {
-      select.innerHTML = locationOptions.map(option => '<option value="' + option.key + '">' + option.label + '</option>').join('');
+      select.replaceChildren();
+      locationOptions.forEach(option => {
+        const optionNode = document.createElement('option');
+        optionNode.value = option.key;
+        optionNode.textContent = option.label;
+        select.appendChild(optionNode);
+      });
       select.addEventListener('change', event => setLocation(event.target.value));
     });
   }
@@ -792,53 +839,83 @@
 
   function renderPerformance(){
     const list = document.getElementById('performanceList');
-    list.innerHTML = stationOrder.map(key => {
+    list.replaceChildren();
+    stationOrder.forEach(key => {
       const station = stationData[key];
-      const selected = currentLocationKey === key ? ' selected' : '';
-      return '<button class="performance-item' + selected + '" type="button" data-location="' + key + '">' +
-        '<div><div class="performance-name">' + station.name + '</div><div class="performance-meta">' + station.subtitle + '</div></div>' +
-        '<div class="performance-values"><div class="performance-sales">' + formatMoney(station.total) + '</div><div class="performance-gallons">' + formatGallons(station.gallons) + ' gal</div></div>' +
-      '</button>';
-    }).join('');
-    list.querySelectorAll('.performance-item').forEach(button => {
+      const button = createNode('button', {
+        className: 'performance-item' + (currentLocationKey === key ? ' selected' : ''),
+        type: 'button'
+      });
+      button.dataset.location = key;
+
+      const details = createNode('div');
+      details.append(
+        createNode('div', { className: 'performance-name', text: station.name }),
+        createNode('div', { className: 'performance-meta', text: station.subtitle })
+      );
+
+      const values = createNode('div', { className: 'performance-values' });
+      values.append(
+        createNode('div', { className: 'performance-sales', text: formatMoney(station.total) }),
+        createNode('div', { className: 'performance-gallons', text: formatGallons(station.gallons) + ' gal' })
+      );
+
+      button.append(details, values);
       button.addEventListener('click', () => {
         setLocation(button.dataset.location);
         showToast('Viewing ' + stationData[button.dataset.location].shortName);
       });
+      list.appendChild(button);
     });
   }
 
   function renderSummaryPreview(){
     const data = getCurrentData();
-    document.getElementById('summaryHourlyPreview').innerHTML = data.preview.map(item => (
-      '<div class="hour-item">' +
-        '<div class="hour-top"><span class="time">' + item.time + '</span><span class="grade">' + item.grade + '</span></div>' +
-        '<div class="hour-stats">' +
-          '<div class="stat"><div class="stat-label">Cnt.</div><div class="stat-value">' + item.count + '</div></div>' +
-          '<div class="stat"><div class="stat-label">Total $</div><div class="stat-value">' + formatMoney(item.total) + '</div></div>' +
-          '<div class="stat"><div class="stat-label">Volume</div><div class="stat-value">' + formatGallons(item.volume) + '</div></div>' +
-        '</div>' +
-      '</div>'
-    )).join('');
+    const container = document.getElementById('summaryHourlyPreview');
+    container.replaceChildren();
+    data.preview.forEach(item => {
+      const hourItem = createNode('div', { className: 'hour-item' });
+      const hourTop = createNode('div', { className: 'hour-top' });
+      hourTop.append(
+        createNode('span', { className: 'time', text: item.time }),
+        createNode('span', { className: 'grade', text: item.grade })
+      );
+
+      const hourStats = createNode('div', { className: 'hour-stats' });
+      appendStatCard(hourStats, 'Cnt.', String(item.count));
+      appendStatCard(hourStats, 'Total $', formatMoney(item.total));
+      appendStatCard(hourStats, 'Volume', formatGallons(item.volume));
+
+      hourItem.append(hourTop, hourStats);
+      container.appendChild(hourItem);
+    });
   }
 
   function renderHourly(){
     const data = getCurrentData();
     document.getElementById('hourlyCardTitle').textContent = currentLocationKey === 'all' ? 'All Locations Portfolio • Aggregated network view' : data.name;
-    document.getElementById('hourlyTableBody').innerHTML = data.hourlyRows.map(row => (
-      '<tr>' +
-        '<td>' + row.time + '</td>' +
-        '<td>' + row.grade + '</td>' +
-        '<td>' + row.cardCount + '</td>' +
-        '<td>' + formatMoney(row.cardAmount) + '</td>' +
-        '<td>' + row.cashCount + '</td>' +
-        '<td>' + formatMoney(row.cashAmount) + '</td>' +
-        '<td>' + row.totalCount + '</td>' +
-        '<td>' + formatMoney(row.totalAmount) + '</td>' +
-        '<td>' + formatMoney(row.avgAmount) + '</td>' +
-        '<td>' + formatGallons(row.volume) + '</td>' +
-      '</tr>'
-    )).join('');
+    const tbody = document.getElementById('hourlyTableBody');
+    tbody.replaceChildren();
+    data.hourlyRows.forEach(row => {
+      const tr = document.createElement('tr');
+      [
+        row.time,
+        row.grade,
+        String(row.cardCount),
+        formatMoney(row.cardAmount),
+        String(row.cashCount),
+        formatMoney(row.cashAmount),
+        String(row.totalCount),
+        formatMoney(row.totalAmount),
+        formatMoney(row.avgAmount),
+        formatGallons(row.volume)
+      ].forEach(value => {
+        const td = document.createElement('td');
+        td.textContent = value;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
   }
 
   function renderReports(){
@@ -847,30 +924,70 @@
     document.getElementById('reportPageSub').textContent = isAll ? 'Portfolio grouping across all sample locations' : 'Grouped sales and payment analysis for ' + data.shortName;
 
     const fuelCount = data.report.fuel.reduce((sum, item) => sum + item.count, 0);
-    document.getElementById('fuel').innerHTML = '<div class="v3-group-title"><b>Sales by Fuel Type</b><span>' + fuelCount + ' grouped entries</span></div>' +
-      '<div class="v3-row v3-head"><span>FUEL TYPE</span><span>COUNT</span><span>SALES</span></div>' +
-      data.report.fuel.map(item => '<div class="v3-row"><span class="v3-name"><i class="v3-dot ' + fuelMeta[item.name].className + '"></i>' + item.name + '</span><span class="v3-num">' + item.count + '</span><span class="v3-money">' + formatMoney(item.sales) + '</span></div>').join('') +
-      '<div class="v3-total"><span>TRANSACTION TOTAL</span><span>' + formatMoney(data.total) + '</span></div>';
+    const fuelContainer = document.getElementById('fuel');
+    fuelContainer.replaceChildren();
+    renderReportHeader(fuelContainer, 'Sales by Fuel Type', fuelCount + ' grouped entries');
+    appendReportRow(fuelContainer, 'FUEL TYPE', 'COUNT', 'SALES', true);
+    data.report.fuel.forEach(item => {
+      appendReportRow(fuelContainer, item.name, String(item.count), formatMoney(item.sales), false, fuelMeta[item.name].className);
+    });
+    const fuelTotal = createNode('div', { className: 'v3-total' });
+    fuelTotal.append(
+      createNode('span', { text: 'TRANSACTION TOTAL' }),
+      createNode('span', { text: formatMoney(data.total) })
+    );
+    fuelContainer.appendChild(fuelTotal);
 
     const paymentCount = data.report.payment.reduce((sum, item) => sum + item.count, 0);
-    document.getElementById('payment').innerHTML = '<div class="v3-group-title"><b>Sales by Payment Type</b><span>' + paymentCount + ' grouped entries</span></div>' +
-      '<div class="v3-row v3-head"><span>PAYMENT TYPE</span><span>COUNT</span><span>SALES</span></div>' +
-      data.report.payment.map(item => '<div class="v3-row"><span class="v3-name">' + item.name + '</span><span class="v3-num">' + item.count + '</span><span class="v3-money">' + formatMoney(item.sales) + '</span></div>').join('') +
-      '<div class="v3-total"><span>TRANSACTION TOTAL</span><span>' + formatMoney(data.total) + '</span></div>' +
-      '<div class="v3-note">' + (isAll ? 'Portfolio totals are aggregated from the four sample locations in this preview.' : 'Mock grouped report for ' + data.name + '.') + '</div>';
+    const paymentContainer = document.getElementById('payment');
+    paymentContainer.replaceChildren();
+    renderReportHeader(paymentContainer, 'Sales by Payment Type', paymentCount + ' grouped entries');
+    appendReportRow(paymentContainer, 'PAYMENT TYPE', 'COUNT', 'SALES', true);
+    data.report.payment.forEach(item => {
+      appendReportRow(paymentContainer, item.name, String(item.count), formatMoney(item.sales), false);
+    });
+    const paymentTotal = createNode('div', { className: 'v3-total' });
+    paymentTotal.append(
+      createNode('span', { text: 'TRANSACTION TOTAL' }),
+      createNode('span', { text: formatMoney(data.total) })
+    );
+    paymentContainer.appendChild(paymentTotal);
+    paymentContainer.appendChild(createNode('div', {
+      className: 'v3-note',
+      text: isAll ? 'Portfolio totals are aggregated from the four sample locations in this preview.' : 'Mock grouped report for ' + data.name + '.'
+    }));
 
-    document.getElementById('combined').innerHTML = '<div class="v3-group-title"><b>Fuel Type × Payment Type</b><span>Combined breakdown</span></div>' +
-      '<div class="v3-row v3-head"><span>FUEL TYPE</span><span>CASH</span><span>CARD</span></div>' +
-      data.report.combined.map(item => '<div class="v3-row"><span class="v3-name"><i class="v3-dot ' + fuelMeta[item.name].className + '"></i>' + item.name + '</span><span class="v3-num">' + formatMoney(item.cash) + '</span><span class="v3-money">' + formatMoney(item.card) + '</span></div>').join('') +
-      '<div class="v3-total"><span>TOTAL</span><span>' + formatMoney(data.total) + '</span></div>';
+    const combinedContainer = document.getElementById('combined');
+    combinedContainer.replaceChildren();
+    renderReportHeader(combinedContainer, 'Fuel Type × Payment Type', 'Combined breakdown');
+    appendReportRow(combinedContainer, 'FUEL TYPE', 'CASH', 'CARD', true);
+    data.report.combined.forEach(item => {
+      appendReportRow(combinedContainer, item.name, formatMoney(item.cash), formatMoney(item.card), false, fuelMeta[item.name].className);
+    });
+    const combinedTotal = createNode('div', { className: 'v3-total' });
+    combinedTotal.append(
+      createNode('span', { text: 'TOTAL' }),
+      createNode('span', { text: formatMoney(data.total) })
+    );
+    combinedContainer.appendChild(combinedTotal);
 
     document.getElementById('paymentMixCaption').textContent = isAll ? 'Cash vs card across all locations' : 'Cash vs card at ' + data.shortName;
     const maxPayment = Math.max.apply(null, data.report.payment.map(item => item.sales));
-    document.getElementById('paymentMixBars').innerHTML = data.report.payment.map(item => {
+    const paymentMixBars = document.getElementById('paymentMixBars');
+    paymentMixBars.replaceChildren();
+    data.report.payment.forEach(item => {
       const height = maxPayment ? Math.max(12, Math.round((item.sales / maxPayment) * 100)) : 12;
       const className = item.name === 'CASH' ? 'regular-bg' : 'plus-bg';
-      return '<div class="v3-col"><span class="v3-val">' + formatMoney(item.sales) + '</span><div class="v3-bar ' + className + '" style="height:' + height + '%"></div><span class="v3-label">' + item.name + '</span></div>';
-    }).join('');
+      const column = createNode('div', { className: 'v3-col' });
+      const bar = createNode('div', { className: 'v3-bar ' + className });
+      bar.style.height = height + '%';
+      column.append(
+        createNode('span', { className: 'v3-val', text: formatMoney(item.sales) }),
+        bar,
+        createNode('span', { className: 'v3-label', text: item.name })
+      );
+      paymentMixBars.appendChild(column);
+    });
   }
 
   function renderLive(){
