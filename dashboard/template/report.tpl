@@ -56,7 +56,7 @@ if(!empty($QRY)){
 	}
 }
 $locationHref = htmlspecialchars((string)$locationid, ENT_QUOTES);
-$locationAlertRows = !empty($inventoryRows) && !empty($locationid) && !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
+$locationAlertRows = !empty($locationid) && !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 $sanitizedAlertRows = [];
 foreach($locationAlertRows as $ALRM){
 	$alertHtml = ep_render_alert_html($ALRM);
@@ -171,7 +171,7 @@ foreach($locationAlertRows as $ALRM){
 					</div>
 					<div class="ep-percent" style="color:<?=$tank['color'];?>"><?=number_format($tank['percent'], 2);?>%</div>
 				</div>
-				<div class="ep-progress"><span style="width:<?=min(100, max(0, $tank['percent']));?>%;background:<?=$tank['color'];?>"></span></div>
+				<div class="ep-progress" role="progressbar" aria-label="Tank <?=$tank['tankid'];?> fill level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?=min(100, max(0, $tank['percent']));?>"><span style="width:<?=min(100, max(0, $tank['percent']));?>%;background:<?=$tank['color'];?>"></span></div>
 				<div class="ep-grid">
 					<div><label>Gallons</label><b><?=number_format($tank['gallons'], 2);?></b></div>
 					<div><label>Live Ullage</label><b><?=htmlspecialchars($tank['ullage']);?></b></div>
