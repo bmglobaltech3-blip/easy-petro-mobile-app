@@ -670,24 +670,35 @@
       }
     });
 
-    aggregate.preview = [0, 1, 2].map(index => {
-      const items = stationOrder.map(key => stationData[key].preview[index]);
-      return {
-        time: items[0].time,
-        grade: 'NETWORK MIX',
-        count: items.reduce((sum, item) => sum + item.count, 0),
-        total: items.reduce((sum, item) => sum + item.total, 0),
-        volume: items.reduce((sum, item) => sum + item.volume, 0)
-      };
+    const previewMap = {};
+    stationOrder.forEach(key => {
+      stationData[key].preview.forEach(item => {
+        if (!previewMap[item.time]) {
+          previewMap[item.time] = {
+            time: item.time,
+            grade: 'NETWORK MIX',
+            count: 0,
+            total: 0,
+            volume: 0
+          };
+        }
+        previewMap[item.time].count += item.count;
+        previewMap[item.time].total += item.total;
+        previewMap[item.time].volume += item.volume;
+      });
     });
+    aggregate.preview = Object.values(previewMap)
+      .sort((a, b) => getTimeSortValue(a.time) - getTimeSortValue(b.time))
+      .slice(0, 3);
 
     const groupedHours = {};
     stationOrder.forEach(key => {
       stationData[key].hourlyRows.forEach(row => {
-        if (!groupedHours[row.time]) {
-          groupedHours[row.time] = {
+        const compositeKey = row.time + '|' + row.grade;
+        if (!groupedHours[compositeKey]) {
+          groupedHours[compositeKey] = {
             time: row.time,
-            grade: 'NETWORK MIX',
+            grade: row.grade,
             cardCount: 0,
             cardAmount: 0,
             cashCount: 0,
@@ -698,7 +709,7 @@
             volume: 0
           };
         }
-        const target = groupedHours[row.time];
+        const target = groupedHours[compositeKey];
         target.cardCount += row.cardCount;
         target.cardAmount += row.cardAmount;
         target.cashCount += row.cashCount;
@@ -711,7 +722,10 @@
     aggregate.hourlyRows = Object.values(groupedHours).map(row => ({
       ...row,
       avgAmount: row.totalCount ? row.totalAmount / row.totalCount : 0
-    }));
+    })).sort((a, b) => {
+      const timeDiff = getTimeSortValue(a.time) - getTimeSortValue(b.time);
+      return timeDiff || a.grade.localeCompare(b.grade);
+    });
 
     const fuelMap = {};
     const paymentMap = {};
@@ -792,6 +806,14 @@
       createNode('span', { text: subtitle })
     );
     container.appendChild(header);
+  }
+
+  function getTimeSortValue(range){
+    const match = /^(\d{1,2}):(\d{2})(AM|PM)/.exec(range);
+    if (!match) return Number.MAX_SAFE_INTEGER;
+    let hour = Number(match[1]) % 12;
+    if (match[3] === 'PM') hour += 12;
+    return (hour * 60) + Number(match[2]);
   }
 
   function populateSelectors(){
