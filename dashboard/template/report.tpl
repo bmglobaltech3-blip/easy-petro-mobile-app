@@ -244,6 +244,7 @@ foreach($locationAlertRows as $ALRM){
 					<h3><?=htmlspecialchars($val);?></h3>
 					<pre><?=htmlspecialchars($filecontent);?></pre>
 				</div>
+				<?
 			}
 		}
 		if($logsFound){?></div><?}?>
