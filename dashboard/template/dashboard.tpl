@@ -146,8 +146,7 @@ foreach($LOCATIONQRY as $LOCATION){
 .ep-mobile-shell .ep-print-btn{background:#2b176f;color:#fff}
 .ep-mobile-shell .ep-export-btn{background:#fff;color:#20275f;border:1px solid #d8dee7}
 .ep-mobile-shell .ep-raw-alerts{margin-top:10px;padding:12px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;font-size:11px;color:#7c2d12}
-.ep-mobile-shell .ep-raw-alerts > *:first-child{margin-top:0}
-.ep-mobile-shell .ep-raw-alerts > *:last-child{margin-bottom:0}
+.ep-mobile-shell .ep-alert-line + .ep-alert-line{margin-top:8px;padding-top:8px;border-top:1px solid rgba(124,45,18,.12)}
 @media(max-width:360px){
 	.ep-mobile-shell .ep-kpis,.ep-mobile-shell .ep-detail-grid,.ep-mobile-shell .ep-stats{grid-template-columns:1fr}
 }
@@ -238,7 +237,7 @@ foreach($LOCATIONQRY as $LOCATION){
 					<?}?>
 
 					<?if(!empty($ALARAM[$location['id']])){?>
-					<div class="ep-raw-alerts"><?foreach($ALARAM[$location['id']] as $ALRM){echo $ALRM;}?></div>
+					<div class="ep-raw-alerts"><?foreach($ALARAM[$location['id']] as $ALRM){$alertText = trim(strip_tags(str_ireplace(array('<br />','<br/>','<br>'), "\n", $ALRM)));if(strlen($alertText)){?><div class="ep-alert-line"><?=nl2br(htmlspecialchars($alertText));?></div><?}}?></div>
 					<?}?>
 				</div>
 			</details>

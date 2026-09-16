@@ -90,6 +90,7 @@ if(!empty($QRY)){
 .ep-report-shell .ep-log h3{margin:0 0 10px;font-size:13px}
 .ep-report-shell .ep-log pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;color:#344054}
 .ep-report-shell .ep-alerts{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:12px;font-size:11px;color:#7c2d12}
+.ep-report-shell .ep-alert-line + .ep-alert-line{margin-top:8px;padding-top:8px;border-top:1px solid rgba(124,45,18,.12)}
 .ep-report-shell .ep-empty{background:#fff;border:1px dashed #ccd5df;border-radius:16px;padding:24px 18px;text-align:center;color:#697386;font-size:11px}
 .ep-report-shell .ep-footer-actions{display:flex;gap:8px;margin-top:16px}
 .ep-report-shell .ep-footer-actions a{flex:1;display:flex;justify-content:center;align-items:center;height:44px;border-radius:12px;font-size:12px;font-weight:800}
@@ -169,7 +170,7 @@ if(!empty($QRY)){
 			<h2>Alerts</h2>
 			<div class="ep-note"><?=number_format(count($locationAlertRows));?> active</div>
 		</div>
-		<div class="ep-alerts"><?foreach($locationAlertRows as $ALRM){echo $ALRM;}?></div>
+		<div class="ep-alerts"><?foreach($locationAlertRows as $ALRM){$alertText = trim(strip_tags(str_ireplace(array('<br />','<br/>','<br>'), "\n", $ALRM)));if(strlen($alertText)){?><div class="ep-alert-line"><?=nl2br(htmlspecialchars($alertText));?></div><?}}?></div>
 		<?}?>
 
 		<?if(!empty($DELIVERYQRY)){?>
@@ -207,7 +208,7 @@ if(!empty($QRY)){
 			if(file_exists($file)){
 				$filecontent = file_get_contents($file);
 				if(!empty($filecontent)){
-					$filecontent = preg_replace('/[\x00-\x1F\x7F]/', '', $filecontent);
+					$filecontent = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $filecontent);
 					if(!$logsFound){?>
 					<div class="ep-section-head">
 						<h2>Archive Logs</h2>
