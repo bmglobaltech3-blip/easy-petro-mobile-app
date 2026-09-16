@@ -14,7 +14,25 @@ if(!function_exists('ep_render_alert_html')){
 		return $html;
 	}
 }
-$locationid = !empty($_GET['location']) ? $_GET['location'] : (!empty($_POST['location']) ? $_POST['location'] : '');
+if(!function_exists('ep_render_log_html')){
+	function ep_render_log_html($html){
+		$html = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $html);
+		$html = str_ireplace(array('<br />', '<br/>'), '<br>', $html);
+		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small><pre><code><table><thead><tbody><tr><td><th><div>');
+		$html = preg_replace_callback('/<a\b[^>]*href=(["\']?)([^"\'>\s]+)\\1[^>]*>/i', function($matches){
+			$href = $matches[2];
+			if(!(preg_match('/^(https?:|mailto:|#)/i', $href) || preg_match('/^\\/(?!\\/)/', $href)))$href = '#';
+			return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
+		}, $html);
+		$html = preg_replace('/<a\b(?![^>]*href=)[^>]*>/i', '<a href="#">', $html);
+		$html = preg_replace('/<(strong|b|em|i|ul|ol|li|p|small|pre|code|table|thead|tbody|tr|td|th|div)\b[^>]*>/i', '<$1>', $html);
+		$html = preg_replace('/<br\b[^>]*>/i', '<br>', $html);
+		return $html;
+	}
+}
+$requestedLocationId = !empty($_GET['location']) ? $_GET['location'] : (!empty($_POST['location']) ? $_POST['location'] : '');
+$locationid = $requestedLocationId;
+$reportLocationId = '';
 $inventoryRows = [];
 $inventoryUpdatedAt = 'No live update';
 $inventoryGallons = 0;
@@ -22,14 +40,14 @@ $locationAlertRows = [];
 
 if(!empty($QRY)){
 	foreach($QRY as $ROWS){
-		$locationid = $ROWS->locationid;
+		$reportLocationId = $ROWS->locationid;
 		$color = !empty($FUELCOLOR[$ROWS->locationid][$ROWS->tankid]) ? $FUELCOLOR[$ROWS->locationid][$ROWS->tankid] : '#079447';
 		$capacity = !empty($FUELCAPACITY[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELCAPACITY[$ROWS->locationid][$ROWS->tankid] : 0;
 		$LESSFUEL = isset($FUELLESS[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLESS[$ROWS->locationid][$ROWS->tankid] : 0;
 		$OVERFUEL = isset($FUELOVER[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELOVER[$ROWS->locationid][$ROWS->tankid] : 0;
 		$LOWFUEL = isset($FUELLOW[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELLOW[$ROWS->locationid][$ROWS->tankid] : 0;
-		$ullageTarget = isset($FUELULLAGE[$ROWS->locationid][$ROWS->tankid]) ? (float)$FUELULLAGE[$ROWS->locationid][$ROWS->tankid] : 90;
-		$capacityTarget = $capacity ? ($capacity * $ullageTarget / 100) : 0;
+		$ullageTarget = 90;
+		$capacityTarget = $capacity ? ($capacity * 90 / 100) : 0;
 		$percent = $capacity ? round(($ROWS->gallons * 100) / $capacity, 2) : 0;
 		$actualUllage = $capacityTarget ? round($capacityTarget - $ROWS->gallons, 2) : 0;
 		$stateClass = 'is-normal';
@@ -55,6 +73,7 @@ if(!empty($QRY)){
 		];
 	}
 }
+$locationid = !empty($requestedLocationId) ? $requestedLocationId : $reportLocationId;
 $locationHref = htmlspecialchars((string)$locationid, ENT_QUOTES);
 $locationAlertRows = !empty($locationid) && !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 $sanitizedAlertRows = [];
@@ -110,7 +129,10 @@ foreach($locationAlertRows as $ALRM){
 .ep-report-shell .ep-delivery-grid b{display:block;font-size:11px;margin-top:3px}
 .ep-report-shell .ep-log{background:#fff;border:1px solid #dfe5ec;border-radius:18px;padding:14px;box-shadow:0 5px 18px rgba(25,35,65,.045)}
 .ep-report-shell .ep-log h3{margin:0 0 10px;font-size:13px}
-.ep-report-shell .ep-log pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;color:#344054}
+.ep-report-shell .ep-log-content{white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;color:#344054}
+.ep-report-shell .ep-log-content pre{margin:0;white-space:pre-wrap}
+.ep-report-shell .ep-log-content table{width:100%;border-collapse:collapse;margin-top:8px}
+.ep-report-shell .ep-log-content td,.ep-report-shell .ep-log-content th{border:1px solid #e4e7ec;padding:6px;text-align:left;vertical-align:top}
 .ep-report-shell .ep-alerts{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:12px;font-size:11px;color:#7c2d12}
 .ep-report-shell .ep-alert-line + .ep-alert-line{margin-top:8px;padding-top:8px;border-top:1px solid rgba(124,45,18,.12)}
 .ep-report-shell .ep-empty{background:#fff;border:1px dashed #ccd5df;border-radius:16px;padding:24px 18px;text-align:center;color:#697386;font-size:11px}
@@ -206,16 +228,22 @@ foreach($locationAlertRows as $ALRM){
 				<div class="ep-row-top">
 					<div>
 						<strong><?=htmlspecialchars($ROWS->products);?></strong>
-						<span>Start <?=htmlspecialchars($ROWS->startrecorded);?></span>
+						<span>Start <?=htmlspecialchars($ROWS->startrecorded);?> · End <?=htmlspecialchars($ROWS->endrecorded);?></span>
 					</div>
 					<strong><?=number_format((float)$ROWS->amountgallons, 2);?> gal</strong>
 				</div>
 				<div class="ep-delivery-grid">
-					<div><label>End gallons</label><b><?=htmlspecialchars($ROWS->endgallons);?></b></div>
 					<div><label>Start gallons</label><b><?=htmlspecialchars($ROWS->startgallons);?></b></div>
-					<div><label>Gallons TC</label><b><?=htmlspecialchars($ROWS->amountgallonstc);?></b></div>
+					<div><label>End gallons</label><b><?=htmlspecialchars($ROWS->endgallons);?></b></div>
+					<div><label>Amount gallons</label><b><?=htmlspecialchars($ROWS->amountgallons);?></b></div>
+					<div><label>Start gallons TC</label><b><?=htmlspecialchars($ROWS->startgallonstc);?></b></div>
+					<div><label>End gallons TC</label><b><?=htmlspecialchars($ROWS->endgallonstc);?></b></div>
+					<div><label>Amount gallons TC</label><b><?=htmlspecialchars($ROWS->amountgallonstc);?></b></div>
+					<div><label>Start water</label><b><?=htmlspecialchars($ROWS->startwater);?></b></div>
 					<div><label>End water</label><b><?=htmlspecialchars($ROWS->endwater);?></b></div>
+					<div><label>Start deg F</label><b><?=htmlspecialchars($ROWS->startdeg);?></b></div>
 					<div><label>End deg F</label><b><?=htmlspecialchars($ROWS->enddeg);?></b></div>
+					<div><label>Start height</label><b><?=htmlspecialchars($ROWS->startheight);?></b></div>
 					<div><label>End height</label><b><?=htmlspecialchars($ROWS->endheight);?></b></div>
 				</div>
 			</div>
@@ -233,7 +261,7 @@ foreach($locationAlertRows as $ALRM){
 				$filecontent = false;
 			}
 			if($filecontent !== false && strlen($filecontent)){
-				$filecontent = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $filecontent);
+				$filecontent = ep_render_log_html($filecontent);
 				if(!$logsFound){?>
 				<div class="ep-section-head">
 					<h2>Archive Logs</h2>
@@ -246,7 +274,7 @@ foreach($locationAlertRows as $ALRM){
 				?>
 				<div class="ep-log">
 					<h3><?=htmlspecialchars($val);?></h3>
-					<pre><?=htmlspecialchars($filecontent);?></pre>
+					<div class="ep-log-content"><?=$filecontent;?></div>
 				</div>
 				<?
 			}

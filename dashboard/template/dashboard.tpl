@@ -57,10 +57,19 @@ foreach($LOCATIONQRY as $LOCATION){
 		$LOWFUEL = isset($FUELLOW[$locationId][$tankid]) ? (float)$FUELLOW[$locationId][$tankid] : 0;
 		$LESSFUEL = isset($FUELLESS[$locationId][$tankid]) ? (float)$FUELLESS[$locationId][$tankid] : 0;
 		$OVERFUEL = isset($FUELOVER[$locationId][$tankid]) ? (float)$FUELOVER[$locationId][$tankid] : 0;
+		$LOWWATER = isset($WATERLOW[$locationId][$tankid]) ? (float)$WATERLOW[$locationId][$tankid] : 0;
+		$LESSWATER = isset($WATERLESS[$locationId][$tankid]) ? (float)$WATERLESS[$locationId][$tankid] : 0;
+		$OVERWATER = isset($WATEROVER[$locationId][$tankid]) ? (float)$WATEROVER[$locationId][$tankid] : 0;
 		$stateClass = 'is-normal';
 		if($LOWFUEL && $gallons < $LOWFUEL)$stateClass = 'is-low';
 		elseif($LESSFUEL && $gallons < $LESSFUEL)$stateClass = 'is-less';
 		elseif($OVERFUEL && $gallons > $OVERFUEL)$stateClass = 'is-over';
+		$waterStateClass = 'is-normal';
+		if($LOWWATER && (float)$water < $LOWWATER)$waterStateClass = 'is-low';
+		elseif($LESSWATER && (float)$water < $LESSWATER)$waterStateClass = 'is-less';
+		elseif($OVERWATER && (float)$water > $OVERWATER)$waterStateClass = 'is-over';
+		$stateWeight = ['is-normal'=>0,'is-over'=>1,'is-less'=>2,'is-low'=>3];
+		if($stateWeight[$waterStateClass] > $stateWeight[$stateClass])$stateClass = $waterStateClass;
 
 		if($updatedAt === 'No live update' && strlen(trim($recorded)))$updatedAt = $recorded;
 		$locationGallons += $gallons;
@@ -87,6 +96,7 @@ foreach($LOCATIONQRY as $LOCATION){
 			'state_class' => $stateClass
 		];
 	}
+	ksort($productTotals);
 
 	$totalAlerts += $locationAlerts;
 	$locationSummaries[] = [
