@@ -2,14 +2,14 @@
 if(!function_exists('ep_render_alert_html')){
 	function ep_render_alert_html($html){
 		$html = str_ireplace(array('<br />', '<br/>', '<br>'), '<br>', $html);
-		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><span><small>');
+		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small>');
 		$html = preg_replace_callback('/<a\b[^>]*href=(["\']?)([^"\'>\s]+)\\1[^>]*>/i', function($matches){
 			$href = $matches[2];
 			if(!preg_match('/^(https?:|mailto:|\\/|#)/i', $href))$href = '#';
 			return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
 		}, $html);
 		$html = preg_replace('/<a\b(?![^>]*href=)[^>]*>/i', '<a href="#">', $html);
-		$html = preg_replace('/<(strong|b|em|i|ul|ol|li|p|span|small)\b[^>]*>/i', '<$1>', $html);
+		$html = preg_replace('/<(strong|b|em|i|ul|ol|li|p|small)\b[^>]*>/i', '<$1>', $html);
 		$html = preg_replace('/<br\b[^>]*>/i', '<br>', $html);
 		return $html;
 	}
@@ -31,7 +31,7 @@ foreach($LOCATIONQRY as $LOCATION){
 	$tanks = [];
 
 	foreach($records as $VEEDORDATA){
-		$vxpld = explode('^', $VEEDORDATA);
+		$vxpld = array_pad(explode('^', $VEEDORDATA), 8, '');
 		$tankid = $vxpld[0];
 		$product = $vxpld[1];
 		$gallons = (float)$vxpld[2];
@@ -83,6 +83,7 @@ foreach($LOCATIONQRY as $LOCATION){
 	$totalAlerts += $locationAlerts;
 	$locationSummaries[] = [
 		'id' => $locationId,
+		'href_id' => rawurlencode((string)$locationId),
 		'title' => $LOCATION['title'],
 		'gallons' => $locationGallons,
 		'tank_count' => $locationTanks,
@@ -219,7 +220,7 @@ foreach($LOCATIONQRY as $LOCATION){
 					</div>
 					<?if(!strlen($_REQUEST['export'])){?>
 					<div class="ep-inline-actions noprint">
-						<a href="?force=y&location=<?=$location['id'];?>" class="ep-action-link primary">Open location</a>
+						<a href="?force=y&location=<?=$location['href_id'];?>" class="ep-action-link primary">Open location</a>
 						<?if(!empty($location['tanks'])){?><a href="javascript:void(0)" class="refreshicon ep-action-link" lid="<?=$location['id'];?>">Refresh</a><?}?>
 					</div>
 					<?}?>
