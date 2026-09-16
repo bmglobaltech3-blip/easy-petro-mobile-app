@@ -29,6 +29,14 @@ foreach($LOCATIONQRY as $LOCATION){
 	$locationAlerts = !empty($ALARAMARRAY[$locationId]) ? count($ALARAMARRAY[$locationId]) : 0;
 	$updatedAt = 'No live update';
 	$tanks = [];
+	$sanitizedAlerts = [];
+
+	if(!empty($ALARAM[$locationId])){
+		foreach($ALARAM[$locationId] as $ALRM){
+			$alertHtml = ep_render_alert_html($ALRM);
+			if(strlen(trim(strip_tags($alertHtml))))$sanitizedAlerts[] = $alertHtml;
+		}
+	}
 
 	foreach($records as $VEEDORDATA){
 		$vxpld = array_pad(explode('^', $VEEDORDATA), 8, '');
@@ -90,7 +98,7 @@ foreach($LOCATIONQRY as $LOCATION){
 		'alerts' => $locationAlerts,
 		'updated_at' => $updatedAt,
 		'tanks' => $tanks,
-		'raw_alerts' => !empty($ALARAM[$locationId]) ? $ALARAM[$locationId] : []
+		'alert_html_rows' => $sanitizedAlerts
 	];
 }
 ?>
@@ -254,13 +262,8 @@ foreach($LOCATIONQRY as $LOCATION){
 					<div class="ep-empty">No live tank inventory is available for this location yet.</div>
 					<?}?>
 
-					<?$alertHtmlRows = [];
-					foreach($location['raw_alerts'] as $ALRM){
-						$alertHtml = ep_render_alert_html($ALRM);
-						if(strlen(trim(strip_tags($alertHtml))))$alertHtmlRows[] = $alertHtml;
-					}
-					if(!empty($alertHtmlRows)){?>
-					<div class="ep-raw-alerts"><?foreach($alertHtmlRows as $alertHtml){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}?></div>
+					<?if(!empty($location['alert_html_rows'])){?>
+					<div class="ep-raw-alerts"><?foreach($location['alert_html_rows'] as $alertHtml){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}?></div>
 					<?}?>
 				</div>
 			</details>

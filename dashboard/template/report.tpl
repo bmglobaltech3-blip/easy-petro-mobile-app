@@ -14,7 +14,7 @@ if(!function_exists('ep_render_alert_html')){
 		return $html;
 	}
 }
-$locationid = !empty($_REQUEST['location']) ? $_REQUEST['location'] : '';
+$locationid = !empty($_GET['location']) ? $_GET['location'] : (!empty($_POST['location']) ? $_POST['location'] : '');
 $inventoryRows = [];
 $inventoryUpdatedAt = 'No live update';
 $inventoryGallons = 0;
@@ -56,7 +56,7 @@ if(!empty($QRY)){
 	}
 }
 $locationHref = rawurlencode((string)$locationid);
-$locationAlertRows = !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
+$locationAlertRows = !empty($inventoryRows) && !empty($locationid) && !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 $sanitizedAlertRows = [];
 foreach($locationAlertRows as $ALRM){
 	$alertHtml = ep_render_alert_html($ALRM);
@@ -227,25 +227,23 @@ foreach($locationAlertRows as $ALRM){
 		$logsFound = false;
 		foreach($reportary as $key=>$val){
 			$file = $dir.$key.'.txt';
-			if(file_exists($file)){
-				$filecontent = file_get_contents($file);
-				if(!empty($filecontent)){
-					$filecontent = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $filecontent);
-					if(!$logsFound){?>
-					<div class="ep-section-head">
-						<h2>Archive Logs</h2>
-						<div class="ep-note">Imported reports</div>
-					</div>
-					<div class="ep-stack">
-					<?
-						$logsFound = true;
-					}
-					?>
-					<div class="ep-log">
-						<h3><?=htmlspecialchars($val);?></h3>
-						<pre><?=htmlspecialchars($filecontent);?></pre>
-					</div>
-				<?}
+			$filecontent = @file_get_contents($file);
+			if($filecontent !== false && strlen($filecontent)){
+				$filecontent = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $filecontent);
+				if(!$logsFound){?>
+				<div class="ep-section-head">
+					<h2>Archive Logs</h2>
+					<div class="ep-note">Imported reports</div>
+				</div>
+				<div class="ep-stack">
+				<?
+					$logsFound = true;
+				}
+				?>
+				<div class="ep-log">
+					<h3><?=htmlspecialchars($val);?></h3>
+					<pre><?=htmlspecialchars($filecontent);?></pre>
+				</div>
 			}
 		}
 		if($logsFound){?></div><?}?>
