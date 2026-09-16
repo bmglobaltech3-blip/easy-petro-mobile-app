@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Easy Petro — Mobile Transaction App Mockup v2</title>
+<style>
+  :root{
+    --navy:#20275f;
+    --navy-2:#29316f;
+    --blue-soft:#d9e6f4;
+    --blue-head:#b8cee6;
+    --green:#079447;
+    --green-dark:#067b3b;
+    --purple:#2b176f;
+    --text:#20252d;
+    --muted:#697386;
+    --line:#dfe5ec;
+    --bg:#f5f7fa;
+    --white:#fff;
+    --danger:#b42318;
+    --shadow:0 8px 24px rgba(31,39,95,.08);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e9edf2;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+  body{min-height:100vh}
+  button,input,select{font:inherit}
+  button{cursor:pointer}
+  .app{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    margin:0 auto;
+    background:var(--bg);
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,.10);
+  }
+  .statusbar{
+    height:26px;
+    background:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 16px;
+    font-size:11px;
+    font-weight:700;
+    color:#111827;
+  }
+  .status-icons{display:flex;gap:7px;align-items:center}
+  .dot{width:5px;height:5px;border-radius:50%;background:#111}
+  header{
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+    padding:14px 16px 13px;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .logo{
+    width:40px;height:40px;border-radius:11px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg,#d7f4dc,#fff);
+    border:1px solid #d7e9dc;
+    overflow:hidden;
+  }
+  .logo svg{width:31px;height:31px}
+  .brand-copy{min-width:0}
+  .brand-name{font-size:16px;font-weight:800;letter-spacing:.2px}
+  .brand-sub{font-size:9px;color:#56825c;font-weight:600;margin-top:1px}
+  .header-actions{display:flex;gap:8px}
+  .icon-btn{
+    width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:12px;
+    display:grid;place-items:center;color:#344054;
+  }
+  .icon-btn svg{width:19px;height:19px}
+  main{padding:14px 14px 96px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .page-title{font-size:22px;line-height:1.2;margin:3px 2px 3px;font-weight:800}
+  .page-sub{font-size:12px;color:var(--muted);margin:0 2px 14px}
+  .location-card{
+    background:linear-gradient(135deg,var(--navy),#313a7b);
+    color:white;border-radius:18px;padding:15px;
+    box-shadow:var(--shadow);margin-bottom:14px;
+  }
+  .location-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;opacity:.72}
+  .location-name{font-size:16px;font-weight:800;margin-top:4px}
+  .location-row{display:flex;justify-content:space-between;align-items:end;gap:10px}
+  .date-pill{font-size:11px;background:rgba(255,255,255,.13);padding:7px 9px;border-radius:9px;white-space:nowrap}
+  .filter-card{
+    background:var(--white);border:1px solid var(--line);border-radius:16px;padding:12px;
+    margin-bottom:14px;box-shadow:0 3px 12px rgba(16,24,40,.03)
+  }
+  .filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field.full{grid-column:1/-1}
+  .field label{font-size:10px;font-weight:700;color:#667085}
+  .field input,.field select{
+    width:100%;height:40px;border:1px solid #d5dce5;border-radius:10px;
+    background:#fff;padding:0 10px;color:#1f2937;font-size:12px;outline:none;
+  }
+  .field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(7,148,71,.10)}
+  .search-btn{
+    width:100%;height:42px;border:0;border-radius:11px;background:var(--green);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px;
+    margin-top:10px;
+  }
+  .search-btn:active{background:var(--green-dark)}
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .metric{
+    background:var(--navy);color:#fff;border-radius:17px;padding:14px 13px;
+    min-height:108px;display:flex;flex-direction:column;justify-content:center;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .metric:after{content:"";position:absolute;width:58px;height:58px;border-radius:50%;right:-25px;top:-25px;background:rgba(255,255,255,.05)}
+  .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;opacity:.70;font-weight:700}
+  .metric-value{font-size:22px;font-weight:800;margin-top:7px;letter-spacing:-.4px}
+  .metric-value.small{font-size:20px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 2px 9px}
+  .section-title{font-size:15px;font-weight:800}
+  .section-action{border:0;background:none;color:var(--green);font-size:11px;font-weight:800;padding:5px}
+  .data-card{
+    background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(16,24,40,.035);
+    margin-bottom:12px;
+  }
+  .data-card-title{padding:12px 13px 10px;font-weight:800;font-size:12px;border-bottom:1px solid var(--line)}
+  .hour-list{padding:0}
+  .hour-item{padding:12px 13px;border-bottom:1px solid #edf0f4}
+  .hour-item:last-child{border-bottom:0}
+  .hour-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .time{font-size:11px;font-weight:800;color:#344054}
+  .grade{font-size:10px;font-weight:800;padding:5px 7px;border-radius:7px;background:#eef2f7;color:#344054}
+  .hour-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+  .stat{background:#f7f9fb;border-radius:9px;padding:8px}
+  .stat-label{font-size:8px;text-transform:uppercase;color:#8a94a5;letter-spacing:.4px}
+  .stat-value{font-size:11px;font-weight:800;margin-top:2px}
+  .transaction{
+    padding:12px 13px;border-bottom:1px solid #edf0f4
+  }
+  .transaction:last-child{border-bottom:0}
+  .tx-top{display:flex;justify-content:space-between;gap:10px}
+  .tx-desc{font-size:12px;font-weight:800}
+  .tx-amount{font-size:13px;font-weight:900}
+  .tx-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .chip{font-size:9px;padding:4px 6px;border-radius:6px;background:#f1f4f8;color:#667085}
+  .chip.cash{background:#eaf8ef;color:#08783b}
+  .chip.card{background:#f0edff;color:#4b31a0}
+  .tx-bottom{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10px;color:#667085}
+  .total-row{
+    padding:13px;background:#eef4fa;display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;font-weight:900
+  }
+  .print-btn{
+    width:100%;height:44px;border:0;border-radius:11px;background:var(--purple);color:#fff;
+    display:flex;justify-content:center;align-items:center;gap:7px;font-size:13px;font-weight:800;
+  }
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:10px;min-width:720px}
+  th{background:var(--blue-head);text-align:left;padding:8px 7px;font-size:9px;white-space:nowrap}
+  td{padding:8px 7px;border-bottom:1px solid #e4e9ef;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  .summary-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:11px}
+  .summary-mini{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fafbfc}
+  .summary-mini span{display:block;font-size:9px;color:#7b8494}
+  .summary-mini strong{display:block;margin-top:3px;font-size:13px}
+  .empty{
+    background:#fff;border:1px dashed #ccd5df;border-radius:16px;padding:28px 18px;text-align:center;
+    color:var(--muted)
+  }
+  .empty-icon{width:48px;height:48px;margin:0 auto 10px;border-radius:14px;background:#eef3f8;display:grid;place-items:center;color:#667085}
+  .empty h3{font-size:14px;margin:0 0 5px;color:#344054}
+  .empty p{font-size:11px;line-height:1.5;margin:0}
+  .bottom-nav{
+    position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(430px,100%);
+    background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+    border-top:1px solid var(--line);height:74px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+    display:grid;grid-template-columns:repeat(4,1fr);z-index:20;
+  }
+  .nav-item{border:0;background:none;color:#7a8493;font-size:9px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:12px}
+  .nav-item svg{width:21px;height:21px}
+  .nav-item.active{color:var(--green);background:#effaf3}
+  .toast{
+    position:fixed;left:50%;bottom:84px;transform:translate(-50%,20px);opacity:0;
+    background:#1f2937;color:white;padding:9px 13px;border-radius:10px;font-size:11px;pointer-events:none;transition:.25s;z-index:30;
+    white-space:nowrap;max-width:90vw
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media(min-width:700px){
+    body{padding:24px}
+    .app{border-radius:24px;min-height:800px}
+    .bottom-nav{position:absolute}
+  }
+
+/* ===== V2 MOBILE REDESIGN ===== */
+body{background:#e7ebf1}
+.app{background:#f5f7fa;max-width:430px}
+header{padding:12px 16px 14px;box-shadow:0 3px 14px rgba(20,30,60,.05)}
+.brand-name{letter-spacing:.4px}
+main{padding:16px 14px 100px}
+.page-title{font-size:24px;letter-spacing:-.5px}
+.page-sub{font-size:11px}
+.location-card{border-radius:20px;padding:18px;background:linear-gradient(140deg,#20275f 0%,#363f86 100%)}
+.filter-card{border-radius:18px;padding:13px;box-shadow:0 5px 18px rgba(25,35,65,.045)}
+.metric-grid{gap:11px}
+.metric{border-radius:18px;min-height:112px;padding:15px;box-shadow:0 6px 18px rgba(25,35,65,.055)}
+.metric-value{font-size:23px}
+.section-head{margin-top:20px}
+.section-title{font-size:15px}
+.data-card{border-radius:18px;box-shadow:0 5px 18px rgba(25,35,65,.045)}
+.hour-item{padding:13px}
+.stat{border-radius:10px;padding:9px}
+.stat-value{font-size:11px}
+.bottom-nav{height:78px;padding-top:8px}
+.nav-item.active{background:#eaf8ef}
+/* Make the mobile report easier to scan than the desktop table. */
+@media(max-width:699px){
+ .table-wrap{border-radius:14px}
+ .data-card-title{font-size:13px}
+ .transaction{padding:13px}
+ .tx-amount{font-size:14px}
+}
+
+</style>
+<style>
+.analytics{background:#fff;border:1px solid #e7eaf0;border-radius:17px;padding:13px;margin-bottom:13px;box-shadow:0 4px 16px rgba(16,24,40,.035)}
+.analytics-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}.analytics-head b{font-size:12px}.analytics-head span{font-size:8px;color:#7a8495}
+.v3-bars{height:145px;display:flex;align-items:flex-end;gap:10px;padding:12px 4px 24px;position:relative;border-bottom:1px solid #edf0f4}.v3-bars:before,.v3-bars:after{content:"";position:absolute;left:0;right:0;border-top:1px dashed #e8ecf2}.v3-bars:before{top:48px}.v3-bars:after{top:94px}.v3-col{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative;z-index:1}.v3-bar{width:min(30px,65%);min-height:3px;border-radius:6px 6px 2px 2px}.v3-val{font-size:7px;color:#667085;margin-bottom:3px;white-space:nowrap}.v3-label{position:absolute;bottom:-20px;font-size:7px;color:#737e90;white-space:nowrap}.regular-bg{background:linear-gradient(#16a064,#07864c)}.diesel-bg{background:linear-gradient(#3b8cf0,#246ac9)}.plus-bg{background:linear-gradient(#8169ec,#5b42c5)}.premium-bg{background:linear-gradient(#f0a14a,#d97b12)}
+.v3-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:0 0 10px}.v3-tab{height:34px;border:1px solid #e1e6ec;border-radius:9px;background:#f6f8fa;color:#667085;font-size:8px;font-weight:850}.v3-tab.active{background:#e8f4ff;color:#1769c2;border-color:#a9d3fb}
+.v3-group{padding:0 12px 12px}.v3-group-title{display:flex;justify-content:space-between;align-items:center;margin:2px 0 8px}.v3-group-title b{font-size:11px}.v3-group-title span{font-size:8px;color:#7a8495}.v3-row{display:grid;grid-template-columns:1.2fr .55fr .9fr;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4}.v3-row:last-child{border-bottom:0}.v3-name{font-size:9px;font-weight:750;display:flex;gap:6px;align-items:center}.v3-num,.v3-money{font-size:9px;text-align:right}.v3-money{font-weight:850}.v3-dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}.v3-head{font-size:7px!important;color:#8993a2!important;text-transform:uppercase;font-weight:700!important}.v3-total{display:flex;justify-content:space-between;background:#eaf4fc;border-radius:9px;padding:9px;font-size:9px;font-weight:900;margin-top:7px}.v3-note{font-size:8px;line-height:1.45;color:#7b8495;background:#f8fafc;border:1px solid #e8edf2;border-radius:9px;padding:8px;margin-top:8px}
+</style></head>
+<body>
+<div class="app">
+  <div class="statusbar">
+    <span>12:57</span>
+    <span class="status-icons"><span>▮▮▮</span><span>⌁</span><span>▰</span></span>
+  </div>
+
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-label="Easy Petro logo">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 5l7 4-7 4-7-4 7-4Z" fill="#29A64A"/>
+            <path d="M11 11l7 4-7 4-7-4 7-4Z" fill="#37A8D9"/>
+            <path d="M29 11l7 4-7 4-7-4 7-4Z" fill="#1E77C7"/>
+            <path d="M20 17l7 4-7 4-7-4 7-4Z" fill="#2D3A9B"/>
+            <path d="M11 23l7 4-7 4-7-4 7-4Z" fill="#26A94B"/>
+            <path d="M29 23l7 4-7 4-7-4 7-4Z" fill="#28A7D7"/>
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <div class="brand-name">EASY PETRO</div>
+          <div class="brand-sub">Grow Your Business Smarter</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" aria-label="Notifications" onclick="showToast('No new notifications')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Profile" onclick="showToast('Profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.4 3.1-5 7-5s6.2 1.6 7 5"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- DASHBOARD / SUMMARY -->
+    <section id="summary" class="screen active">
+      <h1 class="page-title">Sales Overview</h1>
+      <p class="page-sub">Daily station performance</p>
+
+      <div class="location-card">
+        <div class="location-label">Selected location</div>
+        <div class="location-row">
+          <div class="location-name">HWY 22 WHITEHOUSE FUEL</div>
+          <div class="date-pill">09-15-2026</div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div class="field full">
+            <label>Location</label>
+            <select><option>HWY 22 WHITEHOUSE FUEL</option></select>
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" value="2026-09-15">
+          </div>
+          <div class="field">
+            <label>Search by</label>
+            <select><option>Receipt Date</option></select>
+          </div>
+        </div>
+        <button class="search-btn" onclick="showToast('Summary refreshed')">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          SEARCH
+        </button>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Cash</div><div class="metric-value">$4,134.41</div></div>
+        <div class="metric"><div class="metric-label">Card</div><div class="metric-value">$8,537.42</div></div>
+        <div class="metric"><div class="metric-label">Total</div><div class="metric-value">$12,671.83</div></div>
+        <div class="metric"><div class="metric-label">Gallon Sold</div><div class="metric-value small">2,878.699</div></div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Hourly Transactions</div>
+        <button class="section-action" onclick="switchScreen('hourly')">View all</button>
+      </div>
+
+      <div class="data-card">
+        <div class="hour-list">
+          <div class="hour-item">
+            <div class="hour-top"><span class="time">5:00PM - 5:59PM</span><span class="grade">REGULAR</span></div>
+            <div class="hour-stats">
+              <div class="stat"><div class="stat-label">Cnt.</div><div class="stat-value">3</div></div>
+              <div class="stat"><div class="stat-label">Total $</div><div class="stat-value">$100.00</div></div>
+              <div class="stat"><div class="stat-label">Volume</div><div class="stat-value">23.48</div></div>
+            </div>
+          </div>
+          <div class="hour-item">
+            <div class="hour-top"><span class="time">6:00PM - 6:59PM</span><span class="grade">REGULAR</span></div>
+            <div class="hour-stats">
+              <div class="stat"><div class="stat-label">Cnt.</div><div class="stat-value">9</div></div>
+              <div class="stat"><div class="stat-label">Total $</div><div class="stat-value">$331.33</div></div>
+              <div class="stat"><div class="stat-label">Volume</div><div class="stat-value">78.096</div></div>
+            </div>
+          </div>
+          <div class="hour-item">
+            <div class="hour-top"><span class="time">7:00PM - 7:59PM</span><span class="grade">REGULAR</span></div>
+            <div class="hour-stats">
+              <div class="stat"><div class="stat-label">Cnt.</div><div class="stat-value">19</div></div>
+              <div class="stat"><div class="stat-label">Total $</div><div class="stat-value">$843.73</div></div>
+              <div class="stat"><div class="stat-label">Volume</div><div class="stat-value">198.105</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOURLY -->
+    <section id="hourly" class="screen">
+      <h1 class="page-title">Hourly Transactions</h1>
+      <p class="page-sub">Sales grouped by time and fuel grade</p>
+
+      <div class="filter-card">
+        <div class="field">
+          <label>Location</label>
+          <select><option>HWY 22 WHITEHOUSE FUEL</option></select>
+        </div>
+        <div class="filter-grid" style="margin-top:9px">
+          <div class="field"><label>Date</label><input type="date" value="2026-09-15"></div>
+          <div class="field"><label>View</label><select><option>Receipt Date</option></select></div>
+        </div>
+        <button class="search-btn" onclick="showToast('Hourly data refreshed')">SEARCH</button>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-title">HWY 22 WHITEHOUSE FUEL</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Grade</th><th>Card Cnt.</th><th>Card $</th><th>Cash Cnt.</th><th>Cash $</th><th>Total Cnt.</th><th>Total $</th><th>Avg $</th><th>Volume</th></tr></thead>
+            <tbody>
+              <tr><td>5:00PM - 5:59PM</td><td>REGULAR</td><td>1</td><td>$50.00</td><td>2</td><td>$50</td><td>3</td><td>$100.00</td><td>$33.33</td><td>23.48</td></tr>
+              <tr><td>6:00PM - 6:59PM</td><td>DIESEL 2</td><td>0</td><td>$0</td><td>2</td><td>$117</td><td>2</td><td>$117.17</td><td>$58.59</td><td>19.596</td></tr>
+              <tr><td>6:00PM - 6:59PM</td><td>REGULAR</td><td>4</td><td>$164.30</td><td>5</td><td>$167</td><td>9</td><td>$331.33</td><td>$36.81</td><td>78.096</td></tr>
+              <tr><td>7:00PM - 7:59PM</td><td>PREMIUM</td><td>0</td><td>$0</td><td>1</td><td>$45</td><td>1</td><td>$45.27</td><td>$45.27</td><td>9.166</td></tr>
+              <tr><td>7:00PM - 7:59PM</td><td>REGULAR</td><td>12</td><td>$524.90</td><td>7</td><td>$319</td><td>19</td><td>$843.73</td><td>$44.41</td><td>198.105</td></tr>
+              <tr><td>8:00PM - 8:59PM</td><td>REGULAR</td><td>16</td><td>$894.21</td><td>8</td><td>$248</td><td>24</td><td>$1,142.22</td><td>$47.59</td><td>268.39</td></tr>
+              <tr><td>9:00PM - 9:59PM</td><td>DIESEL 2</td><td>2</td><td>$150.08</td><td>0</td><td>$0</td><td>2</td><td>$150.08</td><td>$75.04</td><td>25.102</td></tr>
+              <tr><td>9:00PM - 9:59PM</td><td>PLUS</td><td>1</td><td>$58.28</td><td>0</td><td>$0</td><td>1</td><td>$58.28</td><td>$58.28</td><td>12.246</td></tr>
+              <tr><td>9:00PM - 9:59PM</td><td>REGULAR</td><td>12</td><td>$776.24</td><td>7</td><td>$351</td><td>19</td><td>$1,126.89</td><td>$59.31</td><td>264.99</td></tr>
+              <tr><td>10:00PM - 10:59PM</td><td>DIESEL 2</td><td>1</td><td>$100.01</td><td>0</td><td>$0</td><td>1</td><td>$100.01</td><td>$100.01</td><td>16.727</td></tr>
+              <tr><td>10:00PM - 10:59PM</td><td>PLUS</td><td>4</td><td>$238.60</td><td>0</td><td>$0</td><td>4</td><td>$238.60</td><td>$59.65</td><td>50.425</td></tr>
+              <tr><td>10:00PM - 10:59PM</td><td>PREMIUM</td><td>1</td><td>$80.73</td><td>1</td><td>$54</td><td>2</td><td>$134.74</td><td>$67.37</td><td>27.085</td></tr>
+              <tr><td>10:00PM - 10:59PM</td><td>REGULAR</td><td>14</td><td>$715.28</td><td>12</td><td>$328</td><td>26</td><td>$1,043.30</td><td>$40.13</td><td>244.963</td></tr>
+              <tr><td>11:00PM - 11:59PM</td><td>DIESEL 2</td><td>2</td><td>$165.42</td><td>0</td><td>$0</td><td>2</td><td>$165.42</td><td>$82.71</td><td>27.668</td></tr>
+              <tr><td>11:00PM - 11:59PM</td><td>PLUS</td><td>1</td><td>$103.88</td><td>0</td><td>$0</td><td>1</td><td>$103.88</td><td>$103.88</td><td>21.829</td></tr>
+              <tr><td>11:00PM - 11:59PM</td><td>PREMIUM</td><td>0</td><td>$0</td><td>1</td><td>$50</td><td>1</td><td>$50.00</td><td>$50</td><td>10.124</td></tr>
+              <tr><td>11:00PM - 11:59PM</td><td>REGULAR</td><td>20</td><td>$960.01</td><td>11</td><td>$409</td><td>31</td><td>$1,369.04</td><td>$44.16</td><td>321.978</td></tr>
+              <tr><td>12:00PM - 12:59PM</td><td>DIESEL 2</td><td>1</td><td>$175.00</td><td>1</td><td>$30</td><td>2</td><td>$205.00</td><td>$102.5</td><td>34.287</td></tr>
+              <tr><td>12:00PM - 12:59PM</td><td>PLUS</td><td>1</td><td>$79.00</td><td>1</td><td>$30</td><td>2</td><td>$109.00</td><td>$54.5</td><td>22.984</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="empty" style="padding:16px">
+        <div style="font-size:10px">Horizontal table scrolling is enabled for the full desktop-style data set.</div>
+      </div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section id="transactions" class="screen"><div class="title-row"><div><h1 class="title">Reports</h1><div class="sub">Grouped sales & payment analysis</div></div><div class="date">15 SEP</div></div><div class="filters"><div class="field full"><label>LOCATION</label><select><option>HWY 22 WHITEHOUSE FUEL</option></select></div><div class="grid" style="margin-top:8px"><div class="field"><label>FROM</label><input type="date" value="2026-09-15"></div><div class="field"><label>TO</label><input type="date" value="2026-09-15"></div><div class="field"><label>GRADE</label><select><option>All</option></select></div><div class="field"><label>SEARCH BY</label><select><option>Receipt Date</option></select></div></div><button class="btn" onclick="toast('Grouped report refreshed')">SEARCH</button></div><div class="card" style="padding:12px 0 0"><div style="padding:0 12px"><div class="v3-tabs"><button class="v3-tab active" onclick="reportTab(this,'fuel')">BY FUEL TYPE</button><button class="v3-tab" onclick="reportTab(this,'payment')">BY PAYMENT</button><button class="v3-tab" onclick="reportTab(this,'combined')">COMBINED</button></div></div><div id="fuel" class="v3-group"><div class="v3-group-title"><b>Sales by Fuel Type</b><span>8 rows grouped</span></div><div class="v3-row v3-head"><span>FUEL TYPE</span><span>COUNT</span><span>SALES</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot regular-bg"></i>REGULAR</span><span class="v3-num">2</span><span class="v3-money">$10,429.05</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot diesel-bg"></i>DIESEL 2</span><span class="v3-num">2</span><span class="v3-money">$953.17</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot plus-bg"></i>PLUS</span><span class="v3-num">2</span><span class="v3-money">$669.30</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot premium-bg"></i>PREMIUM</span><span class="v3-num">2</span><span class="v3-money">$620.31</span></div><div class="v3-total"><span>TRANSACTION TOTAL</span><span>$12,671.83</span></div></div><div id="payment" class="v3-group" style="display:none"><div class="v3-group-title"><b>Sales by Payment Type</b><span>8 rows grouped</span></div><div class="v3-row v3-head"><span>PAYMENT TYPE</span><span>COUNT</span><span>SALES</span></div><div class="v3-row"><span class="v3-name">CASH</span><span class="v3-num">4</span><span class="v3-money">$4,334.04</span></div><div class="v3-row"><span class="v3-name">OUTSIDE CREDIT</span><span class="v3-num">4</span><span class="v3-money">$8,337.79</span></div><div class="v3-total"><span>TRANSACTION TOTAL</span><span>$12,671.83</span></div><div class="v3-note">Grouped directly from the 8 transaction rows shown. Dashboard Cash/Card KPIs remain as provided.</div></div><div id="combined" class="v3-group" style="display:none"><div class="v3-group-title"><b>Fuel Type × Payment Type</b><span>Combined breakdown</span></div><div class="v3-row v3-head"><span>FUEL TYPE</span><span>CASH</span><span>OUTSIDE CREDIT</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot regular-bg"></i>REGULAR</span><span class="v3-num">$3,674.39</span><span class="v3-money">$6,754.66</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot diesel-bg"></i>DIESEL 2</span><span class="v3-num">$247.17</span><span class="v3-money">$706.00</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot plus-bg"></i>PLUS</span><span class="v3-num">$116.05</span><span class="v3-money">$553.25</span></div><div class="v3-row"><span class="v3-name"><i class="v3-dot premium-bg"></i>PREMIUM</span><span class="v3-num">$296.43</span><span class="v3-money">$323.88</span></div><div class="v3-total"><span>TOTAL</span><span>$12,671.83</span></div></div></div><div class="section"><h2>Payment Mix</h2><span class="sub">Transaction rows</span></div><div class="analytics"><div class="analytics-head"><b>Sales by payment type</b><span>Cash vs outside credit</span></div><div class="v3-bars" style="height:130px"><div class="v3-col"><span class="v3-val">$4,334.04</span><div class="v3-bar regular-bg" style="height:52%"></div><span class="v3-label">CASH</span></div><div class="v3-col"><span class="v3-val">$8,337.79</span><div class="v3-bar plus-bg" style="height:100%"></div><span class="v3-label">OUTSIDE CREDIT</span></div></div></div><div class="action-row"><button class="action" onclick="window.print()">PRINT REPORT</button><button class="action primary" onclick="toast('Share action')">SHARE REPORT</button></div></section>
+
+    <!-- EMPTY STATE / LIVE TRANSACTIONS -->
+    <section id="live" class="screen">
+      <h1 class="page-title">Live Transactions</h1>
+      <p class="page-sub">Real-time activity for the selected station</p>
+      <div class="location-card">
+        <div class="location-label">Live station</div>
+        <div class="location-name">HWY 22 WHITEHOUSE FUEL</div>
+        <div style="margin-top:10px;font-size:11px;opacity:.78">Last transaction: 09-15-2026 02:45:34 PM</div>
+      </div>
+      <div class="empty">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <h3>Live feed is ready</h3>
+        <p>No additional live transaction was provided in the reference data. This state keeps the screen ready for real-time records.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item active" data-screen="summary" onclick="switchScreen('summary')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9l8-5 8 5v10"/><path d="M8 19v-6h8v6"/></svg>
+      Summary
+    </button>
+    <button class="nav-item" data-screen="hourly" onclick="switchScreen('hourly')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9"/><path d="M9 19V5"/><path d="M14 19v-8"/><path d="M19 19V3"/></svg>
+      Hourly
+    </button>
+    <button class="nav-item" data-screen="transactions" onclick="switchScreen('transactions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h10v18H7z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>
+      Reports
+    </button>
+    <button class="nav-item" data-screen="live" onclick="switchScreen('live')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/><path d="M5 4 3 6M19 4l2 2"/></svg>
+      Live
+    </button>
+  </nav>
+  <div id="toast" class="toast"></div>
+</div>
+
+<script>
+  function switchScreen(id){
+    document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('active',el.id===id));
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.screen===id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  
+function reportTab(btn,id){document.querySelectorAll('.v3-tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');['fuel','payment','combined'].forEach(x=>{let e=document.getElementById(x);if(e)e.style.display=x===id?'block':'none'})}
+let toastTimer;
+  function showToast(message){
+    const toast=document.getElementById('toast');
+    toast.textContent=message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>toast.classList.remove('show'),1800);
+  }
+</script>
+</body>
+</html>
