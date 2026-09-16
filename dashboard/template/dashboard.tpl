@@ -29,7 +29,7 @@ foreach($LOCATIONQRY as $LOCATION){
 		$capacity = !empty($FUELCAPACITY[$locationId][$tankid]) ? (float)$FUELCAPACITY[$locationId][$tankid] : 0;
 		$ullageTarget = isset($FUELULLAGE[$locationId][$tankid]) ? (float)$FUELULLAGE[$locationId][$tankid] : 90;
 		$capacityTarget = $capacity ? ($capacity * $ullageTarget / 100) : 0;
-		$actualUllage = $capacityTarget ? round($capacityTarget - $gallons) : 0;
+		$actualUllage = $capacityTarget ? round($capacityTarget - $gallons, 2) : 0;
 		$percent = $capacity ? round(($gallons * 100) / $capacity, 2) : 0;
 		$LOWFUEL = isset($FUELLOW[$locationId][$tankid]) ? (float)$FUELLOW[$locationId][$tankid] : 0;
 		$LESSFUEL = isset($FUELLESS[$locationId][$tankid]) ? (float)$FUELLESS[$locationId][$tankid] : 0;

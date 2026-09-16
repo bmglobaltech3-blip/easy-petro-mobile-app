@@ -205,10 +205,9 @@ if(!empty($QRY)){
 		foreach($reportary as $key=>$val){
 			$file = $dir.$key.'.txt';
 			if(file_exists($file)){
-				$fp = fopen($file,'r');
-				$filecontent = fread($fp, filesize($file));
-				fclose($fp);
+				$filecontent = file_get_contents($file);
 				if(!empty($filecontent)){
+					$filecontent = preg_replace('/[\x00-\x1F\x7F]/', '', $filecontent);
 					if(!$logsFound){?>
 					<div class="ep-section-head">
 						<h2>Archive Logs</h2>
@@ -221,7 +220,7 @@ if(!empty($QRY)){
 					?>
 					<div class="ep-log">
 						<h3><?=htmlspecialchars($val);?></h3>
-						<pre><?=htmlspecialchars(str_replace('&#1;','',str_replace("\x01", '', $filecontent)));?></pre>
+						<pre><?=htmlspecialchars($filecontent);?></pre>
 					</div>
 				<?}
 			}
