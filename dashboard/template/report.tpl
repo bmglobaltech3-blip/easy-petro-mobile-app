@@ -57,6 +57,11 @@ if(!empty($QRY)){
 }
 $locationHref = rawurlencode((string)$locationid);
 $locationAlertRows = !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
+$sanitizedAlertRows = [];
+foreach($locationAlertRows as $ALRM){
+	$alertHtml = ep_render_alert_html($ALRM);
+	if(strlen(trim(strip_tags($alertHtml))))$sanitizedAlertRows[] = $alertHtml;
+}
 ?>
 <style>
 .ep-report-shell{max-width:430px;margin:0 auto 32px;background:#f5f7fa;color:#20252d;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;border-radius:24px;box-shadow:0 0 40px rgba(0,0,0,.10);overflow:hidden}
@@ -145,7 +150,7 @@ $locationAlertRows = !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 			<div class="ep-card"><span>Tanks</span><strong><?=number_format(count($inventoryRows));?></strong></div>
 			<div class="ep-card"><span>Gallons</span><strong><?=number_format($inventoryGallons, 2);?></strong></div>
 			<div class="ep-card"><span>Deliveries</span><strong><?=number_format(!empty($DELIVERYQRY) ? count($DELIVERYQRY) : 0);?></strong></div>
-			<div class="ep-card"><span>Alerts</span><strong><?=number_format(count($locationAlertRows));?></strong></div>
+			<div class="ep-card"><span>Alerts</span><strong><?=number_format(count($sanitizedAlertRows));?></strong></div>
 		</div>
 		<div class="ep-card" style="margin-bottom:16px;"><span>Updated</span><strong id="dt<?=$locationid;?>" style="font-size:14px;line-height:1.35"><?=htmlspecialchars($inventoryUpdatedAt);?></strong></div>
 
@@ -182,12 +187,12 @@ $locationAlertRows = !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 		<div class="ep-empty">No live inventory data is available for this location yet.</div>
 		<?}?>
 
-		<?if(!empty($locationAlertRows)){?>
+		<?if(!empty($sanitizedAlertRows)){?>
 		<div class="ep-section-head">
 			<h2>Alerts</h2>
-			<div class="ep-note"><?=number_format(count($locationAlertRows));?> active</div>
+			<div class="ep-note"><?=number_format(count($sanitizedAlertRows));?> active</div>
 		</div>
-		<div class="ep-alerts"><?foreach($locationAlertRows as $ALRM){$alertHtml = ep_render_alert_html($ALRM);if(strlen(trim(strip_tags($alertHtml)))){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}}?></div>
+		<div class="ep-alerts"><?foreach($sanitizedAlertRows as $alertHtml){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}?></div>
 		<?}?>
 
 		<?if(!empty($DELIVERYQRY)){?>

@@ -89,7 +89,8 @@ foreach($LOCATIONQRY as $LOCATION){
 		'tank_count' => $locationTanks,
 		'alerts' => $locationAlerts,
 		'updated_at' => $updatedAt,
-		'tanks' => $tanks
+		'tanks' => $tanks,
+		'raw_alerts' => !empty($ALARAM[$locationId]) ? $ALARAM[$locationId] : []
 	];
 }
 ?>
@@ -253,8 +254,13 @@ foreach($LOCATIONQRY as $LOCATION){
 					<div class="ep-empty">No live tank inventory is available for this location yet.</div>
 					<?}?>
 
-					<?if(!empty($ALARAM[$location['id']])){?>
-					<div class="ep-raw-alerts"><?foreach($ALARAM[$location['id']] as $ALRM){$alertHtml = ep_render_alert_html($ALRM);if(strlen(trim(strip_tags($alertHtml)))){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}}?></div>
+					<?$alertHtmlRows = [];
+					foreach($location['raw_alerts'] as $ALRM){
+						$alertHtml = ep_render_alert_html($ALRM);
+						if(strlen(trim(strip_tags($alertHtml))))$alertHtmlRows[] = $alertHtml;
+					}
+					if(!empty($alertHtmlRows)){?>
+					<div class="ep-raw-alerts"><?foreach($alertHtmlRows as $alertHtml){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}?></div>
 					<?}?>
 				</div>
 			</details>
