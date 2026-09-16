@@ -55,7 +55,7 @@ if(!empty($QRY)){
 		];
 	}
 }
-$locationHref = rawurlencode((string)$locationid);
+$locationHref = htmlspecialchars((string)$locationid, ENT_QUOTES);
 $locationAlertRows = !empty($inventoryRows) && !empty($locationid) && !empty($ALARAM[$locationid]) ? $ALARAM[$locationid] : [];
 $sanitizedAlertRows = [];
 foreach($locationAlertRows as $ALRM){
@@ -227,7 +227,11 @@ foreach($locationAlertRows as $ALRM){
 		$logsFound = false;
 		foreach($reportary as $key=>$val){
 			$file = $dir.$key.'.txt';
-			$filecontent = @file_get_contents($file);
+			if(is_readable($file)){
+				$filecontent = file_get_contents($file);
+			}else{
+				$filecontent = false;
+			}
 			if($filecontent !== false && strlen($filecontent)){
 				$filecontent = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $filecontent);
 				if(!$logsFound){?>

@@ -26,7 +26,6 @@ foreach($LOCATIONQRY as $LOCATION){
 	$records = !empty($VEEDORARRAY[$locationId]) ? $VEEDORARRAY[$locationId] : [];
 	$locationGallons = 0;
 	$locationTanks = 0;
-	$locationAlerts = !empty($ALARAMARRAY[$locationId]) ? count($ALARAMARRAY[$locationId]) : 0;
 	$updatedAt = 'No live update';
 	$tanks = [];
 	$sanitizedAlerts = [];
@@ -37,6 +36,7 @@ foreach($LOCATIONQRY as $LOCATION){
 			if(strlen(trim(strip_tags($alertHtml))))$sanitizedAlerts[] = $alertHtml;
 		}
 	}
+	$locationAlerts = count($sanitizedAlerts);
 
 	foreach($records as $VEEDORDATA){
 		$vxpld = array_pad(explode('^', $VEEDORDATA), 8, '');
@@ -91,7 +91,7 @@ foreach($LOCATIONQRY as $LOCATION){
 	$totalAlerts += $locationAlerts;
 	$locationSummaries[] = [
 		'id' => $locationId,
-		'href_id' => rawurlencode((string)$locationId),
+		'href_id' => htmlspecialchars((string)$locationId, ENT_QUOTES),
 		'title' => $LOCATION['title'],
 		'gallons' => $locationGallons,
 		'tank_count' => $locationTanks,
