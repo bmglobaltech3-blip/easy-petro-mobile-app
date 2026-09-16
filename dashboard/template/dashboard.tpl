@@ -1,4 +1,19 @@
 <?$mainclass->headercontent();
+if(!function_exists('ep_render_alert_html')){
+	function ep_render_alert_html($html){
+		$html = str_ireplace(array('<br />', '<br/>', '<br>'), '<br>', $html);
+		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><span><small>');
+		$html = preg_replace_callback('/<a\b[^>]*href=(["\']?)([^"\'>\s]+)\\1[^>]*>/i', function($matches){
+			$href = $matches[2];
+			if(!preg_match('/^(https?:|mailto:|\\/|#)/i', $href))$href = '#';
+			return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
+		}, $html);
+		$html = preg_replace('/<a\b(?![^>]*href=)[^>]*>/i', '<a href="#">', $html);
+		$html = preg_replace('/<(strong|b|em|i|ul|ol|li|p|span|small)\b[^>]*>/i', '<$1>', $html);
+		$html = preg_replace('/<br\b[^>]*>/i', '<br>', $html);
+		return $html;
+	}
+}
 $totalLocations = count($LOCATIONQRY);
 $totalGallons = 0;
 $totalTanks = 0;
@@ -237,7 +252,7 @@ foreach($LOCATIONQRY as $LOCATION){
 					<?}?>
 
 					<?if(!empty($ALARAM[$location['id']])){?>
-					<div class="ep-raw-alerts"><?foreach($ALARAM[$location['id']] as $ALRM){$alertText = trim(strip_tags(str_ireplace(array('<br />','<br/>','<br>'), "\n", $ALRM)));if(strlen($alertText)){?><div class="ep-alert-line"><?=nl2br(htmlspecialchars($alertText));?></div><?}}?></div>
+					<div class="ep-raw-alerts"><?foreach($ALARAM[$location['id']] as $ALRM){$alertHtml = ep_render_alert_html($ALRM);if(strlen(trim(strip_tags($alertHtml)))){?><div class="ep-alert-line"><?=$alertHtml;?></div><?}}?></div>
 					<?}?>
 				</div>
 			</details>
