@@ -77,9 +77,9 @@ foreach($LOCATIONQRY as $LOCATION){
 		elseif($LESSFUEL && $gallons < $LESSFUEL)$stateClass = 'is-less';
 		elseif($OVERFUEL && $gallons > $OVERFUEL)$stateClass = 'is-over';
 		$waterStateClass = 'is-normal';
-		if($OVERWATER && (float)$water >= $OVERWATER)$waterStateClass = 'is-low';
-		elseif($LESSWATER && (float)$water >= $LESSWATER)$waterStateClass = 'is-less';
-		elseif($LOWWATER && (float)$water >= $LOWWATER)$waterStateClass = 'is-over';
+		if($LOWWATER && (float)$water < $LOWWATER)$waterStateClass = 'is-low';
+		elseif($LESSWATER && (float)$water < $LESSWATER)$waterStateClass = 'is-less';
+		elseif($OVERWATER && (float)$water > $OVERWATER)$waterStateClass = 'is-over';
 		$stateWeight = ['is-normal'=>0,'is-over'=>1,'is-less'=>2,'is-low'=>3];
 		if($stateWeight[$waterStateClass] > $stateWeight[$stateClass])$stateClass = $waterStateClass;
 

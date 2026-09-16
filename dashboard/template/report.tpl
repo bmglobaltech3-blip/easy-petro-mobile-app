@@ -261,7 +261,7 @@ foreach($locationAlertRows as $ALRM){
 		$logsFound = false;
 		foreach($reportary as $key=>$val){
 			$file = $dir.$key.'.txt';
-			if(is_readable($file)){
+			if(is_readable($file) && filesize($file) > 0){
 				$filecontent = file_get_contents($file);
 			}else{
 				$filecontent = false;
