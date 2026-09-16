@@ -5,7 +5,7 @@ if(!function_exists('ep_render_alert_html')){
 		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small>');
 		$html = preg_replace_callback('/<a\b[^>]*href=(["\']?)([^"\'>\s]+)\\1[^>]*>/i', function($matches){
 			$href = $matches[2];
-			if(!preg_match('/^(https?:|mailto:|\\/|#)/i', $href))$href = '#';
+			if(!(preg_match('/^(https?:|mailto:|#)/i', $href) || preg_match('/^\\/(?!\\/)/', $href)))$href = '#';
 			return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
 		}, $html);
 		$html = preg_replace('/<a\b(?![^>]*href=)[^>]*>/i', '<a href="#">', $html);

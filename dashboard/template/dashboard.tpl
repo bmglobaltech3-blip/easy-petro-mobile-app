@@ -5,7 +5,7 @@ if(!function_exists('ep_render_alert_html')){
 		$html = strip_tags($html, '<a><br><strong><b><em><i><ul><ol><li><p><small>');
 		$html = preg_replace_callback('/<a\b[^>]*href=(["\']?)([^"\'>\s]+)\\1[^>]*>/i', function($matches){
 			$href = $matches[2];
-			if(!preg_match('/^(https?:|mailto:|\\/|#)/i', $href))$href = '#';
+			if(!(preg_match('/^(https?:|mailto:|#)/i', $href) || preg_match('/^\\/(?!\\/)/', $href)))$href = '#';
 			return '<a href="'.htmlspecialchars($href, ENT_QUOTES).'" target="_blank" rel="noopener noreferrer">';
 		}, $html);
 		$html = preg_replace('/<a\b(?![^>]*href=)[^>]*>/i', '<a href="#">', $html);
@@ -119,6 +119,7 @@ foreach($LOCATIONQRY as $LOCATION){
 .ep-mobile-shell .ep-location-card:last-child{border-bottom:0}
 .ep-mobile-shell .ep-location-card summary{list-style:none;cursor:pointer;padding:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .ep-mobile-shell .ep-location-card summary::-webkit-details-marker{display:none}
+.ep-mobile-shell .ep-location-card summary:focus-visible{outline:2px solid #079447;outline-offset:-2px}
 .ep-mobile-shell .summary-left{display:flex;align-items:center;gap:8px;min-width:0}
 .ep-mobile-shell .summary-left b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ep-mobile-shell .summary-gallons{font-size:10px;color:#697386;font-weight:700;white-space:nowrap}
